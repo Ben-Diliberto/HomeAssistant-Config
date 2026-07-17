@@ -1,0 +1,10 @@
+input_boolean:
+  dog_outside:
+    name: Dog Outside
+    icon: mdi:dog-side
+
+input_datetime:
+  dog_went_out_time:
+    name: Dog Went Out Time
+    has_date: true
+    has_time: true

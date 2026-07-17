@@ -1,0 +1,24 @@
+alias: Dog comes back inside
+trigger:
+  - platform: state
+    entity_id: binary_sensor.dog_flap
+    to: "on"
+    for: "00:00:01"
+condition:
+  - condition: state
+    entity_id: input_boolean.dog_outside
+    state: "on"
+  - condition: template
+    value_template: >
+      {{ (now() - states.input_boolean.dog_outside.last_changed).total_seconds() > 5 }}
+action:
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.dog_outside
+  - service: logbook.log
+    data:
+      name: "Dog Flap"
+      message: >
+        Dog came back inside (was outside for
+        {{ ((now() - states.input_datetime.dog_went_out_time.state | as_datetime).total_seconds() / 60) | round(1) }} minutes)
+      entity_id: binary_sensor.dog_flap
