@@ -1,24 +1,44 @@
 alias: Dog comes back inside
-trigger:
-  - platform: state
-    entity_id: binary_sensor.dog_flap
-    to: "on"
-    for: "00:00:01"
-condition:
+triggers:
+  - entity_id:
+      - binary_sensor.dog_flap_dog_flap
+    to:
+      - "on"
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 1
+    trigger: state
+conditions:
   - condition: state
     entity_id: input_boolean.dog_outside
     state: "on"
   - condition: template
     value_template: >
-      {{ (now() - states.input_boolean.dog_outside.last_changed).total_seconds() > 5 }}
-action:
-  - service: input_boolean.turn_off
-    target:
+      {{ (now() - states.input_boolean.dog_outside.last_changed).total_seconds()
+      > 5 }}
+  - condition: state
+    entity_id: person.ben_diliberto
+    state:
+      - not_home
+actions:
+  - target:
       entity_id: input_boolean.dog_outside
-  - service: logbook.log
-    data:
-      name: "Dog Flap"
+    action: input_boolean.turn_off
+    data: {}
+  - data:
+      name: Dog Flap
       message: >
-        Dog came back inside (was outside for
-        {{ ((now() - states.input_datetime.dog_went_out_time.state | as_datetime).total_seconds() / 60) | round(1) }} minutes)
-      entity_id: binary_sensor.dog_flap
+        Dog came back inside (was outside for {{ ((now() -
+        states.input_datetime.dog_went_out_time.state |
+        as_datetime).total_seconds() / 60) | round(1) }} minutes)
+      entity_id: binary_sensor.dog_flap_dog_flap
+    action: logbook.log
+  - action: notify.send_message
+    target:
+      entity_id: notify.iphone_ben
+    data:
+      message: >-
+        Dog came back inside (was outside for {{ ((now() -
+        states.input_datetime.dog_went_out_time.state |
+        as_datetime).total_seconds() / 60) | round(1) }} minutes)

@@ -1,27 +1,34 @@
 alias: Dog goes outside
-trigger:
-  - platform: state
-    entity_id: binary_sensor.dog_flap
-    to: "on"
-    for: "00:00:01"
-condition:
+triggers:
+  - entity_id:
+      - binary_sensor.dog_flap_dog_flap
+    to:
+      - "on"
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 1
+    trigger: state
+conditions:
   - condition: state
     entity_id: input_boolean.dog_outside
     state: "off"
   - condition: template
     value_template: >
-      {{ (now() - states.input_boolean.dog_outside.last_changed).total_seconds() > 5 }}
-action:
-  - service: input_boolean.turn_on
-    target:
+      {{ (now() - states.input_boolean.dog_outside.last_changed).total_seconds()
+      > 5 }}
+actions:
+  - target:
       entity_id: input_boolean.dog_outside
-  - service: input_datetime.set_datetime
-    target:
+    action: input_boolean.turn_on
+    data: {}
+  - target:
       entity_id: input_datetime.dog_went_out_time
     data:
       timestamp: "{{ now().timestamp() }}"
-  - service: logbook.log
-    data:
-      name: "Dog Flap"
-      message: "Dog went outside"
-      entity_id: binary_sensor.dog_flap
+    action: input_datetime.set_datetime
+  - data:
+      name: Dog Flap
+      message: Dog went outside
+      entity_id: binary_sensor.dog_flap_dog_flap
+    action: logbook.log
